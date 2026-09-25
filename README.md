@@ -5,11 +5,18 @@
 **Học phần:** Chuyên đề Tốt nghiệp 1 – Trường ĐH Văn Lang
 
 ## 1. Mô tả bài toán
-Nhân viên tiếp nhận tra cứu thông tin khách hàng và thiết bị, phân loại nhóm sự cố kèm mức ưu tiên để hệ thống tự động sinh hạn cam kết (SLA) và tạo phiếu; tiếp theo Quản lý trung tâm phê duyệt các phiếu chưa xác minh bảo hành và giám sát tiến độ cam kết tại đơn vị, kết thúc tại bước phiếu bảo hành được xác nhận hợp lệ kèm lịch sử trạng thái.
+Nhân viên tiếp nhận tra cứu khách hàng & thiết bị -> Kiểm tra hạn bảo hành, phân loại nhóm sự cố & mức ưu tiên -> Hệ thống tự động tính hạn cam kết (SLA) & lập phiếu -> Quản lý trung tâm phê duyệt phiếu chưa xác minh bảo hành & giám sát hạn cam kết -> Kết thúc khi phiếu được xác nhận hợp lệ kèm lịch sử trạng thái.
 
 ## 2. Phạm vi
-- **Làm:** Tra cứu/tạo khách hàng kèm chuẩn hóa SĐT (QT-01, QT-02), kiểm tra hạn bảo hành thiết bị (QT-03, QT-05), phân loại sự cố chuẩn hóa, tự động tính hạn cam kết SLA theo ngày làm việc (QT-04), chuyển trạng thái một chiều có lưu log (QT-06) và phê duyệt phiếu chưa xác minh bảo hành.
-- **Không làm:** Phân công kỹ thuật viên sửa chữa (L4), quản lý tồn kho linh kiện (L5), khảo sát hài lòng sau bảo hành (L8).
+- Làm:
+  - Tra cứu và tạo mới khách hàng kèm chuẩn hóa SĐT 10 số bắt đầu bằng 0 (QT-01, QT-02) và che SĐT đối với nhân viên (QT-15).
+  - Quản lý thiết bị theo Serial/IMEI duy nhất (QT-03) và tự động kiểm tra điều kiện bảo hành dựa trên ngày mua (QT-05).
+  - Lập phiếu bảo hành, phân loại sự cố theo danh mục chuẩn (issue_category) và tự động tính hạn cam kết SLA theo mức ưu tiên từ thứ Hai đến thứ Bảy (QT-04).
+  - Cập nhật trạng thái phiếu một chiều có ghi log (QT-06), xóa mềm (QT-13), phân quyền theo trung tâm (QT-14) và luồng Quản lý trung tâm phê duyệt phiếu chưa xác minh bảo hành (QT-05).
+- Không làm:
+  - Phân công kỹ thuật viên theo điểm tay nghề và ghi nhận sửa chữa (thuộc luồng L4).
+  - Quản lý tồn kho và xuất linh kiện bảo hành (thuộc luồng L5).
+  - Khảo sát mức độ hài lòng của khách hàng sau khi đóng phiếu (thuộc luồng L8).
 
 ## 3. Công nghệ sử dụng
 | Thành phần | Công nghệ |
@@ -20,16 +27,14 @@ Nhân viên tiếp nhận tra cứu thông tin khách hàng và thiết bị, ph
 | Kiểm thử | Postman, Java, Selenium WebDriver |
 
 ## 4. Cấu trúc thư mục
-- `docs/diagrams/`: Tài liệu SRS, sơ đồ Use Case, ERD
-- `src/backend/`: Mã nguồn RESTful API
-- `src/frontend/`: Mã nguồn giao diện người dùng
+- `docs/diagrams/`: Tài liệu đặc tả yêu cầu (SRS), sơ đồ Use Case, ERD, khai báo AI
+- `src/backend/`: Mã nguồn RESTful API (Node.js / Express)
+- `src/frontend/`: Mã nguồn giao diện người dùng (ReactJS)
 - `tests/`: Kịch bản và script kiểm thử
 
 ## 5. Hướng dẫn cài đặt & chạy
-1. Tạo CSDL PostgreSQL tên `smartcrm` và cấu hình file `.env` từ `.env.example`.
-2. Di chuyển vào `src/backend`, chạy `npm install` và `node index.js`.
 
 ## 6. Khai báo sử dụng công cụ AI
 | Công cụ | Dùng vào việc gì | Cách tự kiểm chứng |
 |---|---|---|
-| Gemini | Hỗ trợ rà soát phạm vi luồng L2, chuẩn hóa User Stories và tạo khung README.md | Đối chiếu trực tiếp với tài liệu Case Study Smart CRM – Mekong Mobile (Mục 2, Mục 7, Mục 9) |
+| Gemini | Hỗ trợ rà soát phạm vi luồng L2, chuẩn hóa User Stories và tạo khung README.md | Đối chiếu trực tiếp với tài liệu Case Study Smart CRM – Mekong Mobile và kiểm tra thực tế trên GitHub repo |
