@@ -13,7 +13,7 @@
 
 ### Mục 1.1: Giới thiệu và ranh giới phạm vi
 - **Bối cảnh:** Tài liệu này đặc tả phân hệ Tiếp nhận và Phân loại yêu cầu bảo hành (Luồng L2) thuộc hệ thống Smart CRM nhằm chuẩn hóa quy trình đầu vào.
-- **Luồng nghiệp vụ cốt lõi:** Tra cứu/tạo mới hồ sơ KH và định danh thiết bị $\rightarrow$ Kiểm tra điều kiện bảo hành $\rightarrow$ Phân loại nhóm sự cố, mức độ ưu tiên $\rightarrow$ Hệ thống tự động tính hạn cam kết (SLA) & lập phiếu $\rightarrow$ Quản lý duyệt phiếu ngoại lệ $\rightarrow$ Kết thúc.
+- **Luồng nghiệp vụ cốt lõi:** Tra cứu/tạo mới hồ sơ KH và định danh thiết bị -> Kiểm tra điều kiện bảo hành -> Phân loại nhóm sự cố, mức độ ưu tiên -> Hệ thống tự động tính hạn cam kết (SLA) & lập phiếu -> Quản lý duyệt phiếu ngoại lệ -> Kết thúc.
 - **Điều KHÔNG LÀM (Mức WON'T):**
   - Không thực hiện phân công kỹ thuật viên (L4).
   - Không quản lý tồn kho và xuất/nhập linh kiện (L5).
