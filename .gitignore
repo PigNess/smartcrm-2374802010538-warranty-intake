@@ -21,3 +21,19 @@ models/*.pt
 .idea/
 .DS_Store
 Thumbs.db
+
+node_modules/
+.env
+
+# Thư viện tải về (rất nặng, không đẩy lên Git)
+node_modules/
+
+# File biến môi trường chứa Mật khẩu/Secret (BẮT BUỘC PHẢI CHẶN)
+.env
+
+# File rác của hệ điều hành
+.DS_Store
+Thumbs.db
+
+# Thư mục sinh ra khi chạy Test
+coverage/
