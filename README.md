@@ -26,16 +26,17 @@ Nhân viên tiếp nhận tra cứu khách hàng & thiết bị ➔ Kiểm tra h
 
 ---
 
-## 2. Yêu cầu Môi trường & Hướng dẫn Khởi chạy
+## 2. Yêu cầu Môi trường & Hướng dẫn Khởi chạy (Cập nhật Buổi 10)
 
 ### Yêu cầu Hệ thống & Yêu cầu Môi trường
 - **Node.js:** v18.x hoặc v20.x LTS trở lên
 - **npm:** v9.x trở lên
 - **PostgreSQL:** v14.x / v18.x (mặc định port `5432`)
 - **Git:** v2.x
+- **Trình duyệt web:** Google Chrome / Microsoft Edge mới nhất
 
 ### Cấu hình Biến Môi trường (`.env`)
-Tạo tệp `.env` tại thư mục gốc dự án:
+- **Backend `.env`** (tại thư mục gốc dự án):
 ```env
 PORT=3000
 DB_HOST=localhost
@@ -44,8 +45,12 @@ DB_USER=postgres
 DB_PASSWORD=your_postgres_password
 DB_NAME=smartcrm
 ```
+- **Frontend `.env`** (tại `frontend/.env`):
+```env
+VITE_API_BASE_URL=http://localhost:3000
+```
 
-### Hướng dẫn Khởi chạy Dự án (Chạy Localhost)
+### Hướng dẫn Khởi chạy Dự án (Chạy Localhost - Mỗi bước 1 lệnh)
 
 #### 1. Khởi tạo Cơ sở dữ liệu PostgreSQL
 - Mở **pgAdmin 4** hoặc `psql`, tạo Database có tên `smartcrm`.
@@ -61,19 +66,26 @@ CREATE TABLE IF NOT EXISTS tickets (
 );
 ```
 
-#### 2. Khởi động Server Backend (Node.js / Express)
+#### 2. Khởi động Server Backend (Node.js / Express - Port 3000)
 ```bash
 npm install
 npm start
 # Server Backend khởi chạy tại: http://localhost:3000
 ```
 
-#### 3. Khởi động Giao diện Frontend (ReactJS / Vite)
+#### 3. Khởi động Giao diện Frontend (ReactJS / Vite - Port 5173)
+Mở một cửa sổ Terminal / Git Bash mới tại thư mục `frontend/`:
 ```bash
 cd frontend
 npm install
 npm run dev
 # Ứng dụng Frontend khởi chạy tại: http://localhost:5173
+```
+
+#### 4. Thực thi bộ Kiểm thử Tự động (Jest Unit Tests)
+Mở cửa sổ Terminal / Git Bash tại thư mục gốc:
+```bash
+npm test
 ```
 
 ---
@@ -102,57 +114,97 @@ npm run dev
 
 | Thành phần | Công nghệ / Thư viện sử dụng |
 | :--- | :--- |
-| Frontend | ReactJS, Vite, TailwindCSS, Axios |
+| Frontend | ReactJS, Vite, Fetch Client (`src/api/client.js`), Custom Hooks (`useTickets`), Component `DataState.jsx` |
 | Backend | Node.js, Express.js (Kiến trúc 3 Lớp: Repository - Service - Route), pg, dotenv, cors |
 | Cơ sở dữ liệu | PostgreSQL (Database `smartcrm`, Bảng `tickets`) |
+| Testing | Jest (`tests/ticket.service.test.js` - 6 Unit Tests PASS) |
 | Quản lý mã nguồn | Git (Workflow `dev` ➔ `main`, Conventional Commits) |
 | Kiểm thử API & UI | Postman, Thunder Client, Chrome DevTools |
 
 ---
 
-## 6. Cấu trúc thư mục dự án (Cập nhật Buổi 8)
+## 6. Cấu trúc thư mục dự án (Cập nhật Buổi 10)
 
 ```text
 smartcrm-2374802010538-warranty-intake/
 ├── docs/                             # Tài liệu đặc tả, sơ đồ thiết kế & minh chứng chạy
-│   ├── diagrams/                    # Sơ đồ thiết kế hệ thống (Draw.io)
+│   ├── diagrams/                     # Sơ đồ thiết kế hệ thống (Draw.io)
 │   ├── demo-backend-api.png          # Minh chứng kết quả API Backend (JSON)
 │   ├── demo-frontend.png             # Minh chứng giao diện ReactJS
 │   ├── demo-database.png             # Minh chứng bảng dữ liệu PostgreSQL trong pgAdmin
-│   ├── thay-doi-thiet-ke.md          # Nhật ký thay đổi thiết kế (Chuẩn 4 dòng/góp ý BT1)
+│   ├── demo-unittest-pass.png        # Minh chứng 6 Unit Tests PASS bằng Jest
+│   ├── thay-doi-thiet-ke.md          # Nhật ký thay đổi thiết kế
 │   ├── srs.md                        # Đặc tả yêu cầu phần mềm
 │   └── api-contract.md              # Hợp đồng giao tiếp API RESTful
 ├── frontend/                         # Mã nguồn Giao diện Người dùng (ReactJS + Vite)
-│   ├── src/                         # Chứa React Components, Axios Services & CSS
-│   ├── package.json
-│   └── vite.config.js
-├── src/                              # Mã nguồn Backend Node.js/Express (Kiến trúc 3 Lớp)
-│   ├── repositories/                # Lớp Repository: Thao tác dữ liệu SQL trực tiếp
-│   ├── services/                    # Lớp Service: Xử lý logic nghiệp vụ & kiểm tra dữ liệu
-│   └── routes/                      # Lớp Route/Controller: Tiếp nhận & trả về API RESTful
-├── .env                              # Cấu hình biến môi trường
-├── index.js                          # File khởi tạo chính của Server Backend (Port 3000)
-├── package.json                      # Quản lý dependencies dự án
-├── schema.sql                        # Script DDL khởi tạo cơ sở dữ liệu PostgreSQL
-└── README.md                         # Báo cáo tổng quan dự án & hướng dẫn môi trường
+│   ├── .env.example
+│   ├── src/
+│   │   ├── api/                     # Lớp giao tiếp API tập trung (Client Layer)
+│   │   │   ├── client.js            # Cấu hình Fetch, ApiError & Lỗi 401
+│   │   │   └── tickets.api.js       # Các hàm gọi API nghiệp vụ Ticket
+│   │   ├── components/              # Components dùng chung
+│   │   │   └── DataState.jsx        # Xử lý 3 trạng thái: Loading, Empty, Error
+│   │   ├── hooks/                   # Custom React Hooks
+│   │   │   └── useTickets.js        # Fetching & State Management
+│   │   ├── pages/                   # Các trang màn hình
+│   │   │   └── TicketListPage.jsx
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── package.json
+├── src/                             # Mã nguồn Backend Node.js/Express (Kiến trúc 3 Lớp)
+│   ├── config/                      # Kết nối CSDL PostgreSQL (Pool)
+│   │   └── db.js
+│   ├── controllers/                 # Lớp Điều khiển (Routing & HTTP Responses)
+│   │   └── ticket.controller.js
+│   ├── repositories/                # Lớp Repository: Thao tác SQL trực tiếp
+│   │   └── ticket.repo.js
+│   └── services/                    # Lớp Service: Logic nghiệp vụ & kiểm tra quy tắc
+│       └── ticket.service.js
+├── tests/                           # Thư mục kiểm thử tự động Unit Tests (Jest)
+│   └── ticket.service.test.js       # 6 Unit Tests kiểm thử quy tắc QT-05, BR02, QT-01
+├── .env.example                     # File mẫu cấu hình biến môi trường
+├── index.js                         # File khởi tạo chính của Server Backend (Port 3000)
+├── package.json                     # Quản lý dependencies dự án & Jest test script
+├── schema.sql                       # Script DDL khởi tạo cơ sở dữ liệu PostgreSQL
+└── README.md                        # Báo cáo tổng quan dự án & hướng dẫn môi trường
 ```
 
 ---
 
-## 7. Trạng thái Dự án (Cập nhật Tiến độ Buổi 8)
+## 7. Trạng thái Dự án (Cập nhật Tiến độ Buổi 10 - Bài tập 2)
 
-- [x] **Xử lý Phản hồi BT1 (`docs/thay-doi-thiet-ke.md`):** Đã phân tích toàn bộ nhận xét của Giảng viên và lập nhật ký thay đổi thiết kế đầy đủ 4 dòng cho từng điểm góp ý (User Story/MoSCoW, Lệch mã UC, Bảng chú thích ERD, Khai báo AI & PDF, Merge dev/main).
+- [x] **Xử lý Phản hồi BT1 (`docs/thay-doi-thiet-ke.md`):** Đã phân tích toàn bộ nhận xét của Giảng viên và lập nhật ký thay đổi thiết kế đầy đủ 4 dòng cho từng điểm góp ý.
 - [x] **Áp dụng Kiến trúc 3 Lớp Backend:** Mã nguồn `src/` được cấu hình chuẩn phân lớp tách biệt trách nhiệm: `Repository` (SQL), `Service` (Business logic), và `Route` (REST API).
-- [x] **Quản lý Môi trường & Thư viện:** Đã cài đặt và kiểm thử thành công `express`, `pg`, `cors`, `dotenv`, `react`, `vite`, `axios` không sinh lỗi kết nối hay lỗi import.
-- [x] **Cơ sở dữ liệu PostgreSQL:** Đã thiết lập bảng `tickets` bằng mã DDL trong `schema.sql` và thực thi truy vấn `SELECT` kiểm thử thành công.
-- [x] **Tích hợp E2E (End-to-End):** Giao diện Frontend ReactJS (`http://localhost:5173`) tương tác trực tiếp với API Backend (`http://localhost:3000`), thực hiện tạo và hiển thị danh sách phiếu bảo hành mượt mà.
-- [x] **Minh chứng Hình ảnh (`docs/`):** Đã lưu trữ đủ 3 file ảnh chụp minh chứng kết quả chạy thực tế: `demo-frontend.png`, `demo-backend-api.png`, `demo-database.png`.
-- [x] **Quy trình Git Workflow:** Đã commit theo đúng quy ước Conventional Commits (`feat`, `docs`), thực hiện merge từ nhánh `dev` sang `main` và đồng bộ 100% lên Remote Repository.
+- [x] **Tái cấu trúc Frontend Kiến trúc SE Layer:** Tách riêng API Client (`src/api/client.js`, `tickets.api.js`), Custom Hooks (`useTickets`), và màn hình (`TicketListPage`).
+- [x] **Xử lý Ba Trạng thái Giao diện (3-State UI):** Component `DataState.jsx` xử lý chuẩn trạng thái **Loading** (khung chờ), **Error** (mất kết nối backend kèm nút Thử lại), và **Empty** (phân biệt rỗng CSDL vs rỗng do bộ lọc kèm nút Xóa bộ lọc).
+- [x] **Phép thử 30 giây (Grep Test):** Đã kiểm tra câu lệnh `grep -rn "fetch(\|axios" frontend/src/pages frontend/src/components` cho kết quả TRỐNG 100%.
+- [x] **Bộ 6 Unit Tests Nghiệp vụ PASS (100%):** Viết bằng Jest kiểm thử thành công các quy tắc nghiệp vụ QT-05 (bao gồm trường hợp biên `ngayMua: null`), BR02 (trường hợp biên SLA 24h bỏ qua ngày Chủ Nhật), QT-01 / QT-02 (chuẩn hóa SĐT).
+- [x] **Cơ sở dữ liệu PostgreSQL & E2E:** Tích hợp mượt mà dữ liệu mẫu THẬT trong CSDL PostgreSQL qua luồng E2E từ ReactJS ➔ Express API ➔ Database.
+- [x] **Minh chứng Hình ảnh (`docs/`):** Đã lưu trữ đủ 4 file ảnh chụp minh chứng kết quả chạy thực tế: `demo-frontend.png`, `demo-backend-api.png`, `demo-database.png`, `demo-unittest-pass.png`.
+- [x] **Kiểm thử `git clone` Độc lập:** Đã thử nghiệm clone repo ra thư mục mới, chạy `npm install` và `npm test` thành công mượt mà 100%.
+- [x] **Quy trình Git Workflow:** Commit chuẩn Conventional Commits (`feat`, `fix`, `docs`), giải quyết xung đột `merge conflict`, merge nhánh `dev` sang `main` và push đồng bộ 100% lên GitHub.
 
 ---
 
-## 8. Khai báo sử dụng công cụ AI (AI Disclosure)
+## 8. Bảng tiêu chí kiểm chứng Bài tập 2 (Checklist Buổi 10)
+
+| STT | Tiêu chí Kiểm chứng (Buổi 10) | Trạng thái | Ghi chú minh chứng |
+| :-: | :--- | :-: | :--- |
+| 1 | Module mở rộng Track SE hiện thực & chạy được | **PASS** | Tách lớp API Client & UI React |
+| 2 | Luồng chính chạy END-TO-END không lỗi treo | **PASS** | ReactJS -> Express -> PostgreSQL |
+| 3 | Chạy trên dữ liệu mẫu THẬT trong CSDL | **PASS** | Bảng `tickets` trong PostgreSQL |
+| 4 | Chụp ảnh kết quả toàn luồng lưu vào `docs/` | **PASS** | Lưu 4 file ảnh trong `docs/` |
+| 5 | ≥ 5 Unit Tests chạy PASS hiển thị màn hình | **PASS** | 6/6 Tests PASS bằng Jest |
+| 6 | Có ít nhất 1 test trường hợp BIÊN / ngoại lệ | **PASS** | Test `ngayMua: null` & SLA Chủ Nhật |
+| 7 | Ba trạng thái (Loading, Empty, Error) trên UI | **PASS** | Component `DataState.jsx` |
+| 8 | README Mục 3 điền đủ các bước, mỗi bước 1 lệnh | **PASS** | Điền chuẩn từng bước khởi chạy |
+| 9 | Đã thử `git clone` thư mục mới chạy mượt mà | **PASS** | Đã clone & test trên `smartcrm-test` |
+| 10 | Commit theo quy ước, tổng commit ≥ 8 | **PASS** | Đồng bộ 100% nhánh `dev` & `main` |
+
+---
+
+## 9. Khai báo sử dụng công cụ AI (AI Disclosure)
 
 | Công cụ | Dùng vào việc gì | Cách tự kiểm chứng |
 | :--- | :--- | :--- |
-| Gemini | Hỗ trợ rà soát phạm vi luồng L2, chuẩn hóa User Stories, tạo khung README.md và SQL DDL | Đối chiếu trực tiếp với tài liệu Case Study Smart CRM – Mekong Mobile và kiểm tra các nguyên tắc 3NF của CSDL |
+| Gemini | Hỗ trợ rà soát phạm vi luồng L2, chuẩn hóa User Stories, cấu hình Jest Unit Testing, tạo UI 3-state Component và rà soát Checklist Buổi 10 | Đối chiếu trực tiếp với tài liệu Case Study Smart CRM – Mekong Mobile, chạy lệnh `npm test` hiển thị 6/6 PASS và kiểm tra kết quả Grep test |
