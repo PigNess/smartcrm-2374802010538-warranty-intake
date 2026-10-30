@@ -26,9 +26,9 @@ Nhân viên tiếp nhận tra cứu khách hàng & thiết bị ➔ Kiểm tra h
 
 ---
 
-## 2. Yêu cầu Môi trường & Hướng dẫn Khởi chạy (Cập nhật Buổi 10)
+## 2. Yêu cầu Môi trường & Hướng dẫn Khởi chạy
 
-### Yêu cầu Hệ thống & Yêu cầu Môi trường
+### Yêu cầu Hệ thống & Phiên bản Runtime
 - **Node.js:** v18.x hoặc v20.x LTS trở lên
 - **npm:** v9.x trở lên
 - **PostgreSQL:** v14.x / v18.x (mặc định port `5432`)
@@ -44,6 +44,7 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=your_postgres_password
 DB_NAME=smartcrm
+
 ```
 - **Frontend `.env`** (tại `frontend/.env`):
 ```env
@@ -135,54 +136,68 @@ smartcrm-2374802010538-warranty-intake/
 │   ├── demo-unittest-pass.png        # Minh chứng 6 Unit Tests PASS bằng Jest
 │   ├── thay-doi-thiet-ke.md          # Nhật ký thay đổi thiết kế
 │   ├── srs.md                        # Đặc tả yêu cầu phần mềm
-│   └── api-contract.md              # Hợp đồng giao tiếp API RESTful
+│   ├── api-contract.md               # Hợp đồng giao tiếp API RESTful
+│   └── bug-log.md                    # Nhật ký theo dõi lỗi và cách xử lý
 ├── frontend/                         # Mã nguồn Giao diện Người dùng (ReactJS + Vite)
 │   ├── .env.example
 │   ├── src/
-│   │   ├── api/                     # Lớp giao tiếp API tập trung (Client Layer)
-│   │   │   ├── client.js            # Cấu hình Fetch, ApiError & Lỗi 401
-│   │   │   └── tickets.api.js       # Các hàm gọi API nghiệp vụ Ticket
-│   │   ├── components/              # Components dùng chung
-│   │   │   └── DataState.jsx        # Xử lý 3 trạng thái: Loading, Empty, Error
-│   │   ├── hooks/                   # Custom React Hooks
-│   │   │   └── useTickets.js        # Fetching & State Management
-│   │   ├── pages/                   # Các trang màn hình
+│   │   ├── api/                      # Lớp giao tiếp API tập trung (Client Layer)
+│   │   │   ├── client.js             # Cấu hình Fetch, ApiError & Lỗi 401
+│   │   │   └── tickets.api.js        # Các hàm gọi API nghiệp vụ Ticket
+│   │   ├── components/               # Components dùng chung
+│   │   │   └── DataState.jsx         # Xử lý 3 trạng thái: Loading, Empty, Error
+│   │   ├── hooks/                    # Custom React Hooks
+│   │   │   └── useTickets.js         # Fetching & State Management
+│   │   ├── pages/                    # Các trang màn hình
 │   │   │   └── TicketListPage.jsx
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   └── package.json
-├── src/                             # Mã nguồn Backend Node.js/Express (Kiến trúc 3 Lớp)
-│   ├── config/                      # Kết nối CSDL PostgreSQL (Pool)
+├── src/                              # Mã nguồn Backend Node.js/Express (Kiến trúc 3 Lớp)
+│   ├── config/                       # Kết nối CSDL PostgreSQL (Pool)
 │   │   └── db.js
-│   ├── controllers/                 # Lớp Điều khiển (Routing & HTTP Responses)
+│   ├── controllers/                  # Lớp Điều khiển (Routing & HTTP Responses)
 │   │   └── ticket.controller.js
-│   ├── repositories/                # Lớp Repository: Thao tác SQL trực tiếp
+│   ├── repositories/                 # Lớp Repository: Thao tác SQL trực tiếp
 │   │   └── ticket.repo.js
-│   └── services/                    # Lớp Service: Logic nghiệp vụ & kiểm tra quy tắc
+│   └── services/                     # Lớp Service: Logic nghiệp vụ & kiểm tra quy tắc
 │       └── ticket.service.js
-├── tests/                           # Thư mục kiểm thử tự động Unit Tests (Jest)
-│   └── ticket.service.test.js       # 6 Unit Tests kiểm thử quy tắc QT-05, BR02, QT-01
-├── .env.example                     # File mẫu cấu hình biến môi trường
-├── index.js                         # File khởi tạo chính của Server Backend (Port 3000)
-├── package.json                     # Quản lý dependencies dự án & Jest test script
-├── schema.sql                       # Script DDL khởi tạo cơ sở dữ liệu PostgreSQL
-└── README.md                        # Báo cáo tổng quan dự án & hướng dẫn môi trường
+├── tests/                            # Thư mục kiểm thử tự động Unit Tests (Jest)
+│   └── ticket.service.test.js        # 6 Unit Tests kiểm thử quy tắc QT-05, BR02, QT-01
+├── .env.example                      # File mẫu cấu hình biến môi trường
+├── index.js                          # File khởi tạo chính của Server Backend (Port 3000)
+├── package.json                      # Quản lý dependencies dự án & Jest test script
+├── schema.sql                        # Script DDL khởi tạo cơ sở dữ liệu PostgreSQL
+└── README.md                         # Báo cáo tổng quan dự án & hướng dẫn môi trường
 ```
 
 ---
 
-## 7. Trạng thái Dự án (Cập nhật Tiến độ Buổi 10 - Bài tập 2)
+## 7. Trạng thái Dự án (Cập nhật Tiến độ Tuần 12 - Bài tập 2)
 
-- [x] **Xử lý Phản hồi BT1 (`docs/thay-doi-thiet-ke.md`):** Đã phân tích toàn bộ nhận xét của Giảng viên và lập nhật ký thay đổi thiết kế đầy đủ 4 dòng cho từng điểm góp ý.
-- [x] **Áp dụng Kiến trúc 3 Lớp Backend:** Mã nguồn `src/` được cấu hình chuẩn phân lớp tách biệt trách nhiệm: `Repository` (SQL), `Service` (Business logic), và `Route` (REST API).
-- [x] **Tái cấu trúc Frontend Kiến trúc SE Layer:** Tách riêng API Client (`src/api/client.js`, `tickets.api.js`), Custom Hooks (`useTickets`), và màn hình (`TicketListPage`).
-- [x] **Xử lý Ba Trạng thái Giao diện (3-State UI):** Component `DataState.jsx` xử lý chuẩn trạng thái **Loading** (khung chờ), **Error** (mất kết nối backend kèm nút Thử lại), và **Empty** (phân biệt rỗng CSDL vs rỗng do bộ lọc kèm nút Xóa bộ lọc).
-- [x] **Phép thử 30 giây (Grep Test):** Đã kiểm tra câu lệnh `grep -rn "fetch(\|axios" frontend/src/pages frontend/src/components` cho kết quả TRỐNG 100%.
-- [x] **Bộ 6 Unit Tests Nghiệp vụ PASS (100%):** Viết bằng Jest kiểm thử thành công các quy tắc nghiệp vụ QT-05 (bao gồm trường hợp biên `ngayMua: null`), BR02 (trường hợp biên SLA 24h bỏ qua ngày Chủ Nhật), QT-01 / QT-02 (chuẩn hóa SĐT).
-- [x] **Cơ sở dữ liệu PostgreSQL & E2E:** Tích hợp mượt mà dữ liệu mẫu THẬT trong CSDL PostgreSQL qua luồng E2E từ ReactJS ➔ Express API ➔ Database.
-- [x] **Minh chứng Hình ảnh (`docs/`):** Đã lưu trữ đủ 4 file ảnh chụp minh chứng kết quả chạy thực tế: `demo-frontend.png`, `demo-backend-api.png`, `demo-database.png`, `demo-unittest-pass.png`.
-- [x] **Kiểm thử `git clone` Độc lập:** Đã thử nghiệm clone repo ra thư mục mới, chạy `npm install` và `npm test` thành công mượt mà 100%.
-- [x] **Quy trình Git Workflow:** Commit chuẩn Conventional Commits (`feat`, `fix`, `docs`), giải quyết xung đột `merge conflict`, merge nhánh `dev` sang `main` và push đồng bộ 100% lên GitHub.
+- [x] Xử lý Phản hồi BT1 (docs/thay-doi-thiet-ke.md): Đã phân tích toàn bộ nhận xét của Giảng viên và lập nhật ký thay đổi thiết kế đầy đủ 4 dòng cho từng điểm góp ý.
+
+- [x] Áp dụng Kiến trúc 3 Lớp Backend: Mã nguồn src/ được cấu hình chuẩn phân lớp tách biệt trách nhiệm: Repository (SQL), Service (Business logic), và Route (REST API).
+
+- [x] Tái cấu trúc Frontend Kiến trúc SE Layer: Tách riêng API Client (src/api/client.js, tickets.api.js), Custom Hooks (useTickets), và màn hình (TicketListPage).
+
+- [x] Xử lý Ba Trạng thái Giao diện (3-State UI): Component DataState.jsx xử lý chuẩn trạng thái Loading (khung chờ), Error (mất kết nối backend kèm nút Thử lại), và Empty (phân biệt rỗng CSDL vs rỗng do bộ lọc kèm nút Xóa bộ lọc).
+
+- [x] Phép thử 30 giây (Grep Test): Đã kiểm tra câu lệnh grep -rn "fetch(\|axios" frontend/src/pages frontend/src/components cho kết quả TRỐNG 100%.
+
+- [x] Bộ 6 Unit Tests Nghiệp vụ PASS (100%): Viết bằng Jest kiểm thử thành công các quy tắc nghiệp vụ QT-05 (bao gồm trường hợp biên ngayMua: null), BR02 (trường hợp biên SLA 24h bỏ qua ngày Chủ Nhật), QT-01 / QT-02 (chuẩn hóa SĐT).
+
+- [x] Cơ sở dữ liệu PostgreSQL & E2E: Tích hợp mượt mà dữ liệu mẫu THẬT trong CSDL PostgreSQL qua luồng E2E từ ReactJS ➔ Express API ➔ Database.
+
+- [x] Minh chứng Hình ảnh (docs/): Đã lưu trữ đủ 4 file ảnh chụp minh chứng kết quả chạy thực tế: demo-frontend.png, demo-backend-api.png, demo-database.png, demo-unittest-pass.png.
+
+- [x] Kiểm thử git clone Độc lập: Đã thử nghiệm clone repo ra thư mục mới, chạy npm install và npm test thành công mượt mà 100%.
+
+- [x] Quy trình Git Workflow: Commit chuẩn Conventional Commits (feat, fix, docs), giải quyết xung đột merge conflict, merge nhánh dev sang main và push đồng bộ 100% lên GitHub.
+
+- [x] Dọn mã (Clean Code) & Bug Log: Đã xóa toàn bộ print/console.log gỡ lỗi, xử lý các khối catch rỗng và tạo tệp docs/bug-log.md ghi nhận lỗi thực tế.
+
+- [x] Tag và đẩy Release (v0.2): Đã tạo tag v0.2 (thông điệp "Bai tap 2") và đẩy thành công lên nhánh main, cho phép truy cập phiên bản qua URL /releases/tag/v0.2.
 
 ---
 
