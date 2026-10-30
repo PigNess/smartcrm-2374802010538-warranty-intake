@@ -5,13 +5,18 @@ const ticketRepo = require('../repositories/ticket.repo');
 // ==========================================
 
 const createTicket = async (data) => {
-    const { customer_name, device_name, issue_description } = data;
+    // Đã bổ sung nhận thêm phone và email từ data (req.body gửi lên)
+    const { customer_name, phone, email, device_name, issue_description } = data;
     
     if (!customer_name || !device_name) {
         throw new Error("Tên khách hàng và tên thiết bị là thông tin bắt buộc!");
     }
     
-    return await ticketRepo.createTicket(customer_name, device_name, issue_description);
+    // Tự động chuẩn hóa số điện thoại (nếu người dùng có nhập)
+    const validatedPhone = chuanHoaSoDienThoai(phone);
+
+    // Truyền đủ các tham số xuống cho tầng repository
+    return await ticketRepo.createTicket(customer_name, validatedPhone, email, device_name, issue_description);
 };
 
 const getAllTickets = async () => {

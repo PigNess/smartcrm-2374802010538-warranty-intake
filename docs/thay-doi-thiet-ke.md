@@ -98,6 +98,12 @@ Giải pháp xử lý: Đã chuyển toàn bộ background canvas trong Draw.io 
 
 Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
 
+8. Bổ sung trường Liên hệ & Cập nhật Chuỗi ID
+
+- Phân tích: Thiết kế ban đầu thiếu thông tin liên lạc (SĐT, Email) của khách hàng để nhân viên phản hồi kết quả bảo hành. Quá trình test liên tục làm ID của phiếu nhảy số quá cao.
+- Giải pháp xử lý: Đã bổ sung cột `phone` và `email` vào bảng `tickets`. Xuyên suốt luồng từ CSDL -> Repo -> Service -> Router -> Frontend (Component `TicketManager.jsx`) đều đã được cập nhật đón nhận trường mới. Đã dùng lệnh `TRUNCATE tickets RESTART IDENTITY CASCADE` để reset toàn bộ bảng và đưa ID về lại 1.
+- Trạng thái: Đã hoàn thành (Bài tập 2).
+
 III. KẾ HOẠCH N HÀNH ĐỘNG CHO BÀI TẬP 2 (BT2)
 
 Dựa trên các gợi ý trực tiếp từ Giảng viên cho giai đoạn BT2:
@@ -107,3 +113,4 @@ Quản lý Mã nguồn: Duy trì việc gộp mã nguồn từ dev về main sau
 Cơ sở dữ liệu & Tài liệu AI: Đảm bảo duy trì cập nhật tệp schema.sql và docs/ai-disclosure.md liên tục theo các tính năng mới.
 
 Kiểm thử Đơn vị (Unit Test): Viết unit test cho hàm tính toán thời hạn SLA bảo hành, trong đó bắt buộc có logic bỏ qua ngày Chủ nhật (đáp ứng Quy định nghiệp vụ BR02).
+

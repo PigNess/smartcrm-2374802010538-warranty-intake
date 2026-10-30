@@ -5,9 +5,10 @@ const API_URL = 'http://localhost:3000/api/tickets';
 
 function TicketManager() {
     const [tickets, setTickets] = useState([]);
-    const [form, setForm] = useState({ customer_name: '', device_name: '', issue_description: '' });
+    // 1. Thêm phone và email vào state form
+    const [form, setForm] = useState({ customer_name: '', phone: '', email: '', device_name: '', issue_description: '' });
 
-    // 1. Lấy danh sách phiếu bảo hành từ Backend (GET)
+    // Lấy danh sách phiếu bảo hành từ Backend (GET)
     const fetchTickets = async () => {
         try {
             const res = await axios.get(API_URL);
@@ -23,19 +24,20 @@ function TicketManager() {
         fetchTickets();
     }, []);
 
-    // 2. Tạo phiếu bảo hành mới (POST)
+    // Tạo phiếu bảo hành mới (POST)
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await axios.post(API_URL, form);
-            setForm({ customer_name: '', device_name: '', issue_description: '' });
-            fetchTickets(); // Tải lại bảng sau khi tạo
+            // Reset form gồm cả phone và email
+            setForm({ customer_name: '', phone: '', email: '', device_name: '', issue_description: '' });
+            fetchTickets(); 
         } catch (error) {
             console.error('Lỗi khi tạo phiếu:', error);
         }
     };
 
-    // 3. Cập nhật trạng thái phiếu (PATCH)
+    // Cập nhật trạng thái phiếu (PATCH)
     const handleUpdateStatus = async (id, currentStatus) => {
         const nextStatus = currentStatus === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED';
         try {
@@ -46,7 +48,7 @@ function TicketManager() {
         }
     };
 
-    // 4. Xóa phiếu bảo hành (DELETE)
+    // Xóa phiếu bảo hành (DELETE)
     const handleDelete = async (id) => {
         if (window.confirm('Bạn có chắc muốn xóa phiếu này không?')) {
             try {
@@ -59,10 +61,10 @@ function TicketManager() {
     };
 
     return (
-        <div style={{ padding: '30px', fontFamily: 'Arial, sans-serif', maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ padding: '30px', fontFamily: 'Arial, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
             <h2 style={{ color: '#1e293b' }}>Smart CRM - Quản lý Tiếp nhận Bảo hành</h2>
 
-            {/* Form nhập phiếu mới */}
+            {/* Form nhập phiếu mới có thêm Số điện thoại và Email */}
             <form onSubmit={handleSubmit} style={{ marginBottom: '25px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <input 
                     type="text" 
@@ -70,7 +72,21 @@ function TicketManager() {
                     value={form.customer_name} 
                     onChange={e => setForm({...form, customer_name: e.target.value})} 
                     required 
-                    style={{ padding: '10px', flex: '1', borderRadius: '4px', border: '1px solid #ccc' }}
+                    style={{ padding: '10px', flex: '1', minWidth: '150px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <input 
+                    type="text" 
+                    placeholder="Số điện thoại" 
+                    value={form.phone} 
+                    onChange={e => setForm({...form, phone: e.target.value})} 
+                    style={{ padding: '10px', flex: '1', minWidth: '130px', borderRadius: '4px', border: '1px solid #ccc' }}
+                />
+                <input 
+                    type="email" 
+                    placeholder="Email" 
+                    value={form.email} 
+                    onChange={e => setForm({...form, email: e.target.value})} 
+                    style={{ padding: '10px', flex: '1', minWidth: '150px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
                 <input 
                     type="text" 
@@ -78,26 +94,28 @@ function TicketManager() {
                     value={form.device_name} 
                     onChange={e => setForm({...form, device_name: e.target.value})} 
                     required 
-                    style={{ padding: '10px', flex: '1', borderRadius: '4px', border: '1px solid #ccc' }}
+                    style={{ padding: '10px', flex: '1', minWidth: '150px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
                 <input 
                     type="text" 
                     placeholder="Mô tả lỗi" 
                     value={form.issue_description} 
                     onChange={e => setForm({...form, issue_description: e.target.value})} 
-                    style={{ padding: '10px', flex: '2', borderRadius: '4px', border: '1px solid #ccc' }}
+                    style={{ padding: '10px', flex: '2', minWidth: '200px', borderRadius: '4px', border: '1px solid #ccc' }}
                 />
                 <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
                     Tạo phiếu
                 </button>
             </form>
 
-            {/* Bảng hiển thị danh sách */}
+            {/* Bảng hiển thị danh sách có thêm cột Số điện thoại và Email */}
             <table border="1" cellPadding="12" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#f1f5f9' }}>
                         <th>ID</th>
                         <th>Khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
                         <th>Thiết bị</th>
                         <th>Mô tả lỗi</th>
                         <th>Trạng thái</th>
@@ -110,6 +128,8 @@ function TicketManager() {
                             <tr key={ticket.id}>
                                 <td>{ticket.id}</td>
                                 <td>{ticket.customer_name}</td>
+                                <td>{ticket.phone || '---'}</td>
+                                <td>{ticket.email || '---'}</td>
                                 <td>{ticket.device_name}</td>
                                 <td>{ticket.issue_description}</td>
                                 <td>
@@ -136,7 +156,7 @@ function TicketManager() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="6" style={{ textAlign: 'center' }}>Chưa có phiếu bảo hành nào.</td>
+                            <td colSpan="8" style={{ textAlign: 'center' }}>Chưa có phiếu bảo hành nào.</td>
                         </tr>
                     )}
                 </tbody>

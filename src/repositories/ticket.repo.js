@@ -1,9 +1,9 @@
 const pool = require('../config/db');
 
-const createTicket = async (customerName, deviceName, issueDescription) => {
+const createTicket = async (customerName, phone, email, deviceName, issueDescription) => {
     const result = await pool.query(
-        'INSERT INTO tickets (customer_name, device_name, issue_description) VALUES ($1, $2, $3) RETURNING *',
-        [customerName, deviceName, issueDescription]
+        'INSERT INTO tickets (customer_name, phone, email, device_name, issue_description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [customerName, phone, email, deviceName, issueDescription]
     );
     return result.rows[0];
 };
