@@ -11,7 +11,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest --forceExit"
+    "test": "jest --forceExit",
+    "db:setup": "node scripts/db-setup.js"
   },
   "repository": {
     "type": "git",
