@@ -11,7 +11,7 @@
 4. **Kết quả mong đợi:** Supertest liên kết thành công với ứng dụng Express và thực thi các HTTP request.
 5. **Nguyên nhân:** File `app.js` ban đầu chứa các đoạn logic xử lý database/service thay vì khai báo đối tượng ứng dụng Express độc lập.
 6. **Hướng giải quyết / Fix:** Tách biệt rõ ràng file `app.js` chỉ làm nhiệm vụ cấu hình Express, route middleware và xuất `module.exports = app`.
-
+7. **Link commit: https://github.com/PigNess/smartcrm-2374802010538-warranty-intake/commit/d831cf97f4589e1a00df5335f0ec17cde808d0e0
 ---
 
 ### Bug 02 (Major): Lỗi thiếu thông tin liên kết cơ sở dữ liệu khi tạo phiếu bảo hành
@@ -21,6 +21,7 @@
 4. **Kết quả mong đợi:** Hệ thống tự động truy vấn thông tin khách hàng và thiết bị dựa vào khóa ngoại.
 5. **Nguyên nhân:** Thiếu tầng xử lý logic truy vấn bảng `customers` và `devices` trong service.
 6. **Hướng giải quyết / Fix:** Bổ sung logic tra cứu dữ liệu `pool.query` trong `ticket.service.js` và tạo `ticket.controller.js`.
+7. **Link commit: https://github.com/PigNess/smartcrm-2374802010538-warranty-intake/commit/d831cf97f4589e1a00df5335f0ec17cde808d0e0
 
 ---
 
@@ -31,3 +32,4 @@
 4. **Kết quả mong đợi:** Trả về mã trạng thái 409 kèm thông điệp `PHIEU_DANG_MO` theo TC-02.
 5. **Nguyên nhân:** Tầng service và controller chưa bắt mã lỗi `statusCode = 409` và từ khóa định danh.
 6. **Hướng giải quyết / Fix:** Thêm điều kiện kiểm tra trạng thái phiếu trong service, gán `error.statusCode = 409` và cấu hình controller trả về đúng mã 409.
+7. **Link commit: https://github.com/PigNess/smartcrm-2374802010538-warranty-intake/commit/d831cf97f4589e1a00df5335f0ec17cde808d0e0
