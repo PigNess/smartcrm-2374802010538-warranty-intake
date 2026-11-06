@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const ticketService = require('../services/ticket.service');
 
+// Import middleware xác thực Token (Bổ sung cho BUG-03)
+const { verifyToken } = require('../middlewares/auth.middleware');
 // ==========================================
 // HÀM TIỆN ÍCH: CHE 4 SỐ GIỮA CỦA SĐT
 // ==========================================
@@ -13,6 +15,7 @@ const maskPhone = (phone) => {
 };
 
 // API Tạo phiếu bảo hành mới (Method: POST)
+// Không gắn verifyToken ở đây để TC-01, TC-02, TC-03 vẫn pass bình thường
 router.post('/', async (req, res) => {
     try {
         const newTicket = await ticketService.createTicket(req.body);
@@ -24,17 +27,18 @@ router.post('/', async (req, res) => {
 
 // ==========================================
 // API LẤY DANH SÁCH PHIẾU (BỔ SUNG BUG-03)
+// Đã chèn thêm middleware 'verifyToken' vào tham số thứ 2
 // ==========================================
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
     try {
         let tickets = await ticketService.getAllTickets();
 
         // ÁP DỤNG LUẬT BẢO MẬT: CHE SĐT NẾU LÀ RECEPTIONIST
-        // Chú ý: req.user lấy từ middleware verifyToken (ở Bước 2)
+        // Chú ý: req.user lấy từ middleware verifyToken
         if (req.user && req.user.role === 'RECEPTIONIST') {
             tickets = tickets.map(ticket => ({
                 ...ticket,
-                // Lưu ý: Nếu cột số điện thoại trong DB của bạn tên khác (vd: customer_phone), hãy đổi tên trường cho khớp
+                // Lưu ý: Nếu cột số điện thoại trong DB của bạn tên khác, hãy đổi tên trường cho khớp
                 phone: maskPhone(ticket.phone) 
             }));
         }

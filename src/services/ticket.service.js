@@ -1,120 +1,69 @@
-const ticketRepo = require('../repositories/ticket.repo');
+// src/services/ticket.service.js
+const pool = require('../config/db');
 
-// ==========================================
-// 1. CÁC HÀM XỬ LÝ CRUD PHIẾU BẢO HÀNH
-// ==========================================
+const createTicket = async (ticketData) => {
+    const customerId = ticketData.customerId || ticketData.customer_id;
+    const serialNo = ticketData.serialNo || ticketData.serial_no;
+    const issueDescription = ticketData.issueDescription || ticketData.issue_description || 'Không có mô tả';
 
-const createTicket = async (data) => {
-    // Đã bổ sung nhận thêm phone và email từ data (req.body gửi lên)
-    const { customer_name, phone, email, device_name, issue_description } = data;
-    
-    if (!customer_name || !device_name) {
-        throw new Error("Tên khách hàng và tên thiết bị là thông tin bắt buộc!");
+    if (!customerId || !serialNo) {
+        throw new Error('Mã khách hàng và số serial thiết bị là thông tin bắt buộc!');
     }
-    
-    // Tự động chuẩn hóa số điện thoại (nếu người dùng có nhập)
-    const validatedPhone = chuanHoaSoDienThoai(phone);
 
-    // Truyền đủ các tham số xuống cho tầng repository
-    return await ticketRepo.createTicket(customer_name, validatedPhone, email, device_name, issue_description);
+    const customerRes = await pool.query('SELECT * FROM customers WHERE id = $1', [customerId]);
+    if (customerRes.rows.length === 0) {
+        throw new Error('Khách hàng không tồn tại!');
+    }
+    const customer = customerRes.rows[0];
+
+    const deviceRes = await pool.query('SELECT * FROM devices WHERE serial_number = $1 OR serial_no = $1', [serialNo]);
+    const deviceName = deviceRes.rows.length > 0 ? deviceRes.rows[0].device_name : 'Thiết bị bảo hành';
+
+    const existingTicket = await pool.query(
+        'SELECT * FROM tickets WHERE serial_no = $1 AND status IN ($2, $3)', 
+        [serialNo, 'OPEN', 'MO']
+    );
+    if (existingTicket.rows.length > 0) {
+        const error = new Error('PHIEU_DANG_MO');
+        error.statusCode = 409;
+        throw error;
+    }
+
+    const ticketCode = 'TCK-' + Date.now().toString().slice(-6);
+
+    const result = await pool.query(
+        `INSERT INTO tickets (ticket_code, customer_id, serial_no, customer_name, phone, email, device_name, issue_description, status) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+        [ticketCode, customerId, serialNo, customer.name, customer.phone, customer.email, deviceName, issueDescription, 'OPEN']
+    );
+
+    return result.rows[0];
 };
 
 const getAllTickets = async () => {
-    return await ticketRepo.getAllTickets();
+    const result = await pool.query('SELECT * FROM tickets ORDER BY created_at DESC');
+    return result.rows;
 };
 
-const updateStatus = async (id, status) => {
-    if (!status) {
-        throw new Error("Trạng thái mới là bắt buộc!");
-    }
-    const updatedTicket = await ticketRepo.updateTicketStatus(id, status);
-    if (!updatedTicket) {
-        throw new Error("Không tìm thấy phiếu bảo hành với ID này!");
-    }
-    return updatedTicket;
+const updateTicketStatus = async (id, status) => {
+    const result = await pool.query(
+        'UPDATE tickets SET status = $1 WHERE id = $2 RETURNING *',
+        [status, id]
+    );
+    return result.rows[0];
 };
 
-const removeTicket = async (id) => {
-    const deletedTicket = await ticketRepo.deleteTicket(id);
-    if (!deletedTicket) {
-        throw new Error("Không tìm thấy phiếu bảo hành với ID này!");
-    }
-    return deletedTicket;
+const deleteTicket = async (id) => {
+    const result = await pool.query(
+        'DELETE FROM tickets WHERE id = $1 RETURNING *',
+        [id]
+    );
+    return result.rows[0];
 };
 
-// ==========================================
-// 2. CÁC HÀM XỬ LÝ LOGIC NGHIỆP VỤ & QUY TẮC
-// (Bổ sung để chạy Unit Test Buổi 10)
-// ==========================================
-
-// Quy tắc QT-05: Kiểm tra điều kiện bảo hành thiết bị
-const kiemTraConBaoHanh = (thietBi, ngayKiemTraStr) => {
-    if (!thietBi || !thietBi.ngayMua) {
-        return {
-            conBaoHanh: null,
-            lyDo: 'CHUA_XAC_MINH_BAO_HANH'
-        };
-    }
-
-    const ngayMua = new Date(thietBi.ngayMua);
-    const ngayKiemTra = ngayKiemTraStr ? new Date(ngayKiemTraStr) : new Date();
-    const soThangBaoHanh = thietBi.soThangBaoHanh || 12;
-
-    const ngayHetHan = new Date(ngayMua);
-    ngayHetHan.setMonth(ngayHetHan.getMonth() + soThangBaoHanh);
-
-    if (ngayKiemTra <= ngayHetHan) {
-        return {
-            conBaoHanh: true,
-            lyDo: 'CON_HAN_BAO_HANH'
-        };
-    } else {
-        return {
-            conBaoHanh: false,
-            lyDo: 'HET_HAN_BAO_HANH'
-        };
-    }
-};
-
-// Quy tắc BR02: Tính hạn cam kết SLA (Bỏ qua ngày Chủ Nhật)
-const tinhHanCamKetSLA = (ngayTaoStr, soGioSLA = 24) => {
-    if (!ngayTaoStr) return null;
-
-    let curr = new Date(ngayTaoStr);
-    let remainingHours = soGioSLA;
-
-    while (remainingHours > 0) {
-        curr.setHours(curr.getHours() + 1);
-        if (curr.getDay() !== 0) { // getDay() === 0 là ngày Chủ Nhật
-            remainingHours -= 1;
-        }
-    }
-
-    return curr.toISOString();
-};
-
-// Quy tắc QT-01/QT-02: Chuẩn hóa số điện thoại 10 số bắt đầu bằng 0
-const chuanHoaSoDienThoai = (sdt) => {
-    if (!sdt) return null;
-    let clean = String(sdt).replace(/\D/g, '');
-    if (clean.startsWith('84') && clean.length === 11) {
-        clean = '0' + clean.slice(2);
-    }
-    if (clean.length === 10 && clean.startsWith('0')) {
-        return clean;
-    }
-    return null;
-};
-
-// ==========================================
-// XUẤT TOÀN BỘ CÁC HÀM
-// ==========================================
-module.exports = { 
-    createTicket, 
-    getAllTickets, 
-    updateStatus, 
-    removeTicket,
-    kiemTraConBaoHanh,
-    tinhHanCamKetSLA,
-    chuanHoaSoDienThoai
+module.exports = {
+    createTicket,
+    getAllTickets,
+    updateTicketStatus,
+    deleteTicket
 };
