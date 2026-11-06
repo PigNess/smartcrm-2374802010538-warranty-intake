@@ -11,13 +11,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Khai báo Routes cho Tickets
-const ticketRoutes = require('./src/routes/ticket.routes');
-app.use('/api/tickets', ticketRoutes);
+// 1. Khai báo Routes cho Auth (Đăng nhập - Không cần bảo vệ)
+const authRoutes = require('./src/routes/auth.routes');
+app.use('/api/auth', authRoutes);
 
-// Khai báo Routes cho Customers
+// 2. Khai báo Routes cho Customers
 const customerRoutes = require('./src/routes/customer.routes');
 app.use('/api/customers', customerRoutes);
+
+// 3. Khai báo Routes cho Tickets (ĐÃ BẢO VỆ BẰNG TOKEN & PHÂN QUYỀN)
+const { verifyToken } = require('./src/middlewares/auth.middleware');
+const ticketRoutes = require('./src/routes/ticket.routes');
+app.use('/api/tickets', verifyToken, ticketRoutes); 
 
 // Khởi động Server
 const PORT = process.env.APP_PORT || 3000;

@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const ticketService = require('../services/ticket.service');
 
+// ==========================================
+// HÀM TIỆN ÍCH: CHE 4 SỐ GIỮA CỦA SĐT
+// ==========================================
+const maskPhone = (phone) => {
+    // Nếu không có số điện thoại hoặc định dạng không đủ 10 số thì trả về nguyên bản
+    if (!phone || phone.length < 10) return phone;
+    // Cắt 3 số đầu + **** + lấy số từ vị trí thứ 7 đến hết. VD: 0901234567 -> 090****567
+    return phone.slice(0, 3) + '****' + phone.slice(7);
+};
+
 // API Tạo phiếu bảo hành mới (Method: POST)
 router.post('/', async (req, res) => {
     try {
@@ -12,16 +22,28 @@ router.post('/', async (req, res) => {
     }
 });
 
-// API Lấy danh sách phiếu (Method: GET)
+// ==========================================
+// API LẤY DANH SÁCH PHIẾU (BỔ SUNG BUG-03)
+// ==========================================
 router.get('/', async (req, res) => {
     try {
-        const tickets = await ticketService.getAllTickets();
+        let tickets = await ticketService.getAllTickets();
+
+        // ÁP DỤNG LUẬT BẢO MẬT: CHE SĐT NẾU LÀ RECEPTIONIST
+        // Chú ý: req.user lấy từ middleware verifyToken (ở Bước 2)
+        if (req.user && req.user.role === 'RECEPTIONIST') {
+            tickets = tickets.map(ticket => ({
+                ...ticket,
+                // Lưu ý: Nếu cột số điện thoại trong DB của bạn tên khác (vd: customer_phone), hãy đổi tên trường cho khớp
+                phone: maskPhone(ticket.phone) 
+            }));
+        }
+
         res.status(200).json({ status: 'success', data: tickets });
     } catch (error) {
         res.status(500).json({ status: 'error', message: 'Lỗi máy chủ nội bộ' });
     }
 });
-
 
 // API Cập nhật trạng thái phiếu (Method: PATCH)
 router.patch('/:id/status', async (req, res) => {
@@ -45,4 +67,5 @@ router.delete('/:id', async (req, res) => {
         res.status(404).json({ status: 'error', message: error.message });
     }
 });
+
 module.exports = router;
