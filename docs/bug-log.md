@@ -1,28 +1,33 @@
-# Nhật Ký Sửa Lỗi (Bug Log) - Smart CRM
+# DANH SÁCH LỖI (BUG LOG) - SMART CRM
+**Sinh viên thực hiện:** Lê Quang Anh Tuấn
+**Mã SV:** 2374802010538
 
-## BUG-01: Lỗi kết nối và thiếu khởi tạo cấu trúc quan hệ bảng dữ liệu khi khởi chạy
-1. **Mã và mức độ:** BUG-01 - Major (Lỗi cấu hình / Môi trường CSDL)
-2. **Phát hiện bởi:** Lê Quang Anh Tuấn
-3. **Triệu chứng:** Khi khởi chạy ứng dụng lần đầu trên môi trường trống, hệ thống báo lỗi `relation "tickets" does not exist` do cơ sở dữ liệu PostgreSQL chưa được thiết lập bảng.
-4. **Cách tái lập:** Tạo một database PostgreSQL mới, cấu hình file `.env` rồi chạy lệnh `npm start` mà không chạy trước script tạo bảng.
-5. **Nguyên nhân:** Thiếu tập lệnh tự động hóa migration cấu trúc `schema.sql` và dữ liệu mồi `seed.sql` khiến ứng dụng không tự động dựng sẵn schema.
-6. **Cách sửa:** Xây dựng script tự động hóa tại `scripts/db-setup.js` đọc và thực thi các tệp SQL cấu trúc, đồng thời tích hợp lệnh `"db:setup"` vào `package.json`.
-7. **Commit và xác nhận:** Commit `fix: bổ sung migration, seed data và script tự động dựng CSDL (BUG-01)` [Nhớ dán link commit thực tế của bạn] -> Chạy `npm run db:setup` thành công, các bảng được tạo đầy đủ.
+---
 
-## BUG-02: Lỗi 404 Not Found khi gọi các phương thức CRUD của thực thể Khách hàng
-1. **Mã và mức độ:** BUG-02 - Major (Lỗi thiếu sót tuyến đường API)
-2. **Phát hiện bởi:** Lê Quang Anh Tuấn
-3. **Triệu chứng:** Khi gửi yêu cầu HTTP đến các endpoint quản lý khách hàng (`/api/customers`), Postman trả về mã lỗi `404 Not Found`.
-4. **Cách tái lập:** Gửi request `GET /api/customers` hoặc `POST /api/customers` khi hệ thống chưa định nghĩa router cho thực thể khách hàng.
-5. **Nguyên nhân:** Dự án ban đầu chỉ tập trung xây dựng module cho phiếu bảo hành (`tickets`), chưa hoàn thiện tầng Repository, Controller và Routes cho thực thể phụ (`customers`).
-6. **Cách sửa:** Lập trình bổ sung `customer.repo.js`, `customer.controller.js`, `customer.routes.js` và đăng ký tuyến đường vào `index.js`.
-7. **Commit và xác nhận:** Commit `fix: bổ sung đủ API CRUD cho thực thể Khách hàng (BUG-02)` [Nhớ dán link commit thực tế của bạn] -> Kiểm chứng các API trả về mã trạng thái 200/201 thành công.
+### Bug 01 (Critical/Major): Lỗi xung đột cấu trúc khởi chạy app.js và supertest
+1. **Mô tả lỗi:** Khi chạy lệnh test tự động qua Jest, Supertest trả về lỗi `TypeError: app.address is not a function`.
+2. **Các bước tái lập:** Thực thi lệnh `npx jest tests/ticket.test.js` từ terminal.
+3. **Kết quả thực tế:** Test suite sập ngay từ khâu khởi tạo kết nối ứng dụng HTTP ảo.
+4. **Kết quả mong đợi:** Supertest liên kết thành công với ứng dụng Express và thực thi các HTTP request.
+5. **Nguyên nhân:** File `app.js` ban đầu chứa các đoạn logic xử lý database/service thay vì khai báo đối tượng ứng dụng Express độc lập.
+6. **Hướng giải quyết / Fix:** Tách biệt rõ ràng file `app.js` chỉ làm nhiệm vụ cấu hình Express, route middleware và xuất `module.exports = app`.
 
-## BUG-03: Lỗi rò rỉ dữ liệu nhạy cảm (SĐT) do chưa tích hợp Middleware xác thực phân quyền
-1. **Mã và mức độ:** BUG-03 - Critical (Lỗ hổng bảo mật & Phân quyền)
-2. **Phát hiện bởi:** Lê Quang Anh Tuấn
-3. **Triệu chứng:** Các endpoint danh sách phiếu bảo hành trả về toàn bộ số điện thoại khách hàng mà không kiểm tra xem người gọi API có quyền hạn hay vai trò tương ứng hay không.
-4. **Cách tái lập:** Gửi request `GET /api/tickets` mà không đính kèm Token xác thực trong Header -> Hệ thống vẫn trả về dữ liệu bình thường.
-6. **Nguyên nhân:** Thiếu tầng kiểm tra JWT (`auth.middleware.js`) và logic xử lý ẩn bớt ký tự số điện thoại (Masking) dựa trên phân quyền vai trò (`RECEPTIONIST`).
-7. **Cách sửa:** Xây dựng cơ chế đăng nhập cấp token, bổ sung middleware `verifyToken` vào route tickets và viết hàm logic tự động che 4 số giữa của SĐT nếu role là nhân viên lễ tân.
-7. **Commit và xác nhận:** Commit `fix: hoàn thiện bảo mật phân quyền, đăng nhập và che SĐT (BUG-03)` [Nhớ dán link commit thực tế của bạn] -> Test thực tế: tài khoản lễ tân bị che SĐT, tài khoản quản lý hiển thị đầy đủ, chưa đăng nhập bị chặn (401).
+---
+
+### Bug 02 (Major): Lỗi thiếu thông tin liên kết cơ sở dữ liệu khi tạo phiếu bảo hành
+1. **Mô tả lỗi:** Các test case tạo phiếu TC-01 và TC-02 trả về mã lỗi 400 thay vì mã thành công hoặc mã xung đột trùng lặp.
+2. **Các bước tái lập:** Gửi request POST `/api/tickets` với payload chứa `customerId` và `serialNo`.
+3. **Kết quả thực tế:** Controller và Service không tự động phân giải tên khách hàng từ bảng `customers`.
+4. **Kết quả mong đợi:** Hệ thống tự động truy vấn thông tin khách hàng và thiết bị dựa vào khóa ngoại.
+5. **Nguyên nhân:** Thiếu tầng xử lý logic truy vấn bảng `customers` và `devices` trong service.
+6. **Hướng giải quyết / Fix:** Bổ sung logic tra cứu dữ liệu `pool.query` trong `ticket.service.js` và tạo `ticket.controller.js`.
+
+---
+
+### Bug 03 (Moderate): Lỗi lệch định dạng mã trạng thái HTTP 409 khi trùng lặp phiếu mở
+1. **Mô tả lỗi:** Khi tạo phiếu với serial đang có phiếu mở (OPEN), hệ thống trả về mã lỗi chung thay vì mã 409 Conflict.
+2. **Các bước tái lập:** Gửi liên tiếp 2 request tạo phiếu bảo hành có cùng số `serialNo`.
+3. **Kết quả thực tế:** Trả về mã lỗi 400 kèm thông báo lỗi mặc định.
+4. **Kết quả mong đợi:** Trả về mã trạng thái 409 kèm thông điệp `PHIEU_DANG_MO` theo TC-02.
+5. **Nguyên nhân:** Tầng service và controller chưa bắt mã lỗi `statusCode = 409` và từ khóa định danh.
+6. **Hướng giải quyết / Fix:** Thêm điều kiện kiểm tra trạng thái phiếu trong service, gán `error.statusCode = 409` và cấu hình controller trả về đúng mã 409.
