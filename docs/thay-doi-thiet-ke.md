@@ -114,3 +114,33 @@ Cơ sở dữ liệu & Tài liệu AI: Đảm bảo duy trì cập nhật tệp 
 
 Kiểm thử Đơn vị (Unit Test): Viết unit test cho hàm tính toán thời hạn SLA bảo hành, trong đó bắt buộc có logic bỏ qua ngày Chủ nhật (đáp ứng Quy định nghiệp vụ BR02).
 
+## Cập nhật thiết kế và xử lý lỗi sau phản hồi Bài tập 2 (Buổi 14)
+
+Dựa trên nhận xét Bài tập 2 của giảng viên, hệ thống đã đạt được các điểm mạnh về luồng nghiệp vụ (chuẩn hóa SĐT, tính SLA, check hạn bảo hành...). Tuy nhiên, để khắc phục các điểm thiếu sót kỹ thuật, các quyết định thay đổi thiết kế và xử lý lỗi được ghi nhận và thực hiện chi tiết như sau:
+
+### 1. Khắc phục lỗi S3: Thiếu Database Migration và Seed Data
+- **Nhận xét của GV:** Repo không có migration dựng CSDL từ trống và tệp dữ liệu mẫu, khiến việc dựng hệ thống trên máy mới gặp khó khăn.
+- **Quyết định xử lý:** 
+  * Bổ sung thư mục `database/` chứa tệp cấu trúc `schema.sql` và dữ liệu mẫu `seed.sql`. 
+  * Viết script tự động hóa `scripts/db-setup.js` và tích hợp lệnh `"db:setup": "node scripts/db-setup.js"` vào `package.json`. Đảm bảo hệ thống có thể dựng lại hoàn chỉnh từ thư mục trống chỉ với lệnh thiết lập.
+- **Trạng thái:** Đã hoàn thành, kiểm chứng và ghi nhận vào Bug Log (BUG-01).
+
+### 2. Khắc phục lỗi S1: API chưa đủ CRUD cho 2 thực thể
+- **Nhận xét của GV:** Hệ thống mới chỉ tập trung vào thực thể Phiếu bảo hành (Tickets), chưa có đủ CRUD cho thực thể thứ hai.
+- **Quyết định xử lý:** 
+  * Bổ sung đầy đủ các thao tác RESTful API cho thực thể thứ hai (Khách hàng - `customers`).
+  * Xây dựng tầng Repository (`customer.repo.js`), Controller (`customer.controller.js`) và Routes (`customer.routes.js`) hỗ trợ đầy đủ 4 thao tác: Tạo mới (POST), Đọc danh sách (GET), Cập nhật (PUT) và Xóa (DELETE).
+- **Trạng thái:** Đã hoàn thành, tích hợp vào `index.js` và ghi nhận vào Bug Log (BUG-02).
+
+### 3. Bổ sung tài liệu minh bạch AI
+- **Nhận xét của GV:** Thiếu file `docs/ai-disclosure.md` trong repo.
+- **Quyết định xử lý:** Tạo và bổ sung file khai báo sử dụng công cụ AI (`docs/ai-disclosure.md`) trong thư mục tài liệu, nêu rõ phạm vi hỗ trợ của công cụ và cam kết trách nhiệm cá nhân đối với logic cốt lõi.
+- **Trạng thái:** Đã hoàn thành và đẩy lên nhánh `main`.
+
+### 4. Bổ sung cơ chế Xác thực (Authentication) và Phân quyền che dữ liệu
+- **Nhận xét của GV:** Chưa có đăng nhập dù có quy tắc che SĐT theo vai trò.
+- **Quyết định xử lý:**
+  * Bổ sung API Đăng nhập (`/api/auth/login`) phân biệt hai vai trò: `RECEPTIONIST` (Lễ tân) và `MANAGER` (Quản lý), sử dụng JSON Web Token (JWT).
+  * Xây dựng Middleware xác thực (`auth.middleware.js`) để bảo vệ các tuyến đường API nhạy cảm.
+  * Cập nhật tầng xử lý dữ liệu danh sách phiếu bảo hành: Nếu người dùng đăng nhập mang vai trò `RECEPTIONIST`, hệ thống tự động áp dụng thuật toán che 4 số giữa của Số điện thoại (Masking); nếu là `MANAGER`, hiển thị đầy đủ.
+- **Trạng thái:** Đã hoàn thành và ghi nhận vào Bug Log (BUG-03 - Critical/Major).
