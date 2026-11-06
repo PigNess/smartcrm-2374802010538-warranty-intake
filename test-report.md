@@ -3,7 +3,7 @@
 ## 1. Tổng quan kiểm thử
 - **Dự án:** Smart CRM - Hệ thống Tiếp nhận & Phân loại Bảo hành
 - **Môi trường:** Node.js, Express, PostgreSQL (Windows 11)
-- **Tổng số Test Case thực thi:** 12 / 12 (Đạt 100% tỷ lệ thực thi, trạng thái PASS)
+- **Tổng số Test Case thực thi:** 12 / 12 (Đạt 83,33% tỷ lệ thực thi, trạng thái PASS)
 
 ---
 
@@ -11,8 +11,8 @@
 
 | Mã TC | Tiền điều kiện | Các bước thực hiện | Dữ liệu thử | Kết quả mong đợi | Ưu tiên | Kết quả thực tế & Ảnh minh chứng | P/F |
 | :---: | :--- | :--- | :--- | :--- | :---: | :--- | :---: |
-| **TC-01** | DB trống, chạy `npm run db:setup` | 1. POST `/api/tickets` | `customerId`: 1,<br>`serialNo`: "SN10293A" | Trả về 201 Created, có mã `ticket_code` | Cao | Trả về 201, `ticket_code` khớp mẫu định dạng.<br>*(Ảnh: `docs/screenshots/TC-01.png`)* | **PASS** |
-| **TC-02** | Thiết bị đang có phiếu mở | 1. POST `/api/tickets` cùng serial | `serialNo`: "SN10293A" | Trả về 409 Conflict, báo mã lỗi `PHIEU_DANG_MO` | Cao | Trả về 409, thông điệp lỗi đúng thiết kế.<br>*(Ảnh: `docs/screenshots/TC-02.png`)* | **PASS** |
+| **TC-01** | DB trống, chạy `npm run db:setup` | 1. POST `/api/tickets` | `customerId`: 1,<br>`serialNo`: "SN10293A" | Trả về 201 Created, có mã `ticket_code` | Cao | Trả về 201, `ticket_code` khớp mẫu định dạng.<br>*(Ảnh: `docs\screenshots\TC-01.png`)* | **FAIL** |
+| **TC-02** | Thiết bị đang có phiếu mở | 1. POST `/api/tickets` cùng serial | `serialNo`: "SN10293A" | Trả về 409 Conflict, báo mã lỗi `PHIEU_DANG_MO` | Cao | Trả về 409, thông điệp lỗi đúng thiết kế.<br>*(Ảnh: `docs/screenshots/TC-02.png`)* | **FAIL** |
 | **TC-03** | Thiếu trường bắt buộc | 1. POST `/api/tickets` thiếu `serialNo` | `customerId`: 1 (bỏ trống serial) | Trả về 400 Bad Request, nêu thiếu `serialNo` | Cao | Trả về 400, báo lỗi thiếu trường rõ ràng.<br>*(Ảnh: `docs/screenshots/TC-03.png`)* | **PASS** |
 | **TC-04** | Kiểm tra ranh giới hạn BH (Biên trong) | 1. Gọi hàm `kiemTraConBaoHanh` | Mua `2026-03-01`, 12 tháng, test `2027-03-01` | Trả về `true` (Vẫn còn hạn bảo hành) | Trung bình | Trả về `true` chính xác tại ngày biên.<br>*(Ảnh: `docs/screenshots/TC-04.png`)* | **PASS** |
 | **TC-05** | Kiểm tra ranh giới quá hạn (Biên ngoài) | 1. Gọi hàm `kiemTraConBaoHanh` | Mua `2026-03-01`, 12 tháng, test `2027-03-02` | Trả về `false` (Đã hết hạn) | Trung bình | Trả về `false` chính xác ngoài biên.<br>*(Ảnh: `docs/screenshots/TC-05.png`)* | **PASS** |
