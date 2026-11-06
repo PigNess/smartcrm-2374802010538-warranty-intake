@@ -15,6 +15,10 @@ app.use(express.json());
 const ticketRoutes = require('./src/routes/ticket.routes');
 app.use('/api/tickets', ticketRoutes);
 
+// Khai báo Routes cho Customers
+const customerRoutes = require('./src/routes/customer.routes');
+app.use('/api/customers', customerRoutes);
+
 // Khởi động Server
 const PORT = process.env.APP_PORT || 3000;
 app.listen(PORT, () => {
