@@ -4,7 +4,7 @@
 
 ---
 
-### Bug 01 (Critical/Major): Lỗi xung đột cấu trúc khởi chạy app.js và supertest
+### Bug 01 (Critical): Lỗi xung đột cấu trúc khởi chạy app.js và supertest
 1. **Mô tả lỗi:** Khi chạy lệnh test tự động qua Jest, Supertest trả về lỗi `TypeError: app.address is not a function`.
 2. **Các bước tái lập:** Thực thi lệnh `npx jest tests/ticket.test.js` từ terminal.
 3. **Kết quả thực tế:** Test suite sập ngay từ khâu khởi tạo kết nối ứng dụng HTTP ảo.
