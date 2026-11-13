@@ -1,0 +1,85 @@
+services:
+  # -------------------------------------------------------------
+  # Cơ sở dữ liệu: PostgreSQL
+  # -------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartcrm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-smartcrm}
+      POSTGRES_USER: ${DB_USER:-smartcrm}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smartcrm_secret}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Tự động khởi tạo schema và dữ liệu mẫu khi tạo volume lần đầu
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-smartcrm} -d ${DB_NAME:-smartcrm}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - smartcrm-net
+
+  # -------------------------------------------------------------
+  # Dịch vụ Backend: Node.js / Express API
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartcrm-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-smartcrm}
+      DB_USER: ${DB_USER:-smartcrm}
+      DB_PASSWORD: ${DB_PASSWORD:-smartcrm_secret}
+      SECRET_KEY: ${SECRET_KEY:-smartcrm_jwt_secret_key_2026}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - smartcrm-net
+
+  # -------------------------------------------------------------
+  # Dịch vụ Frontend: React / Vite (Được phục vụ bởi Nginx)
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+    container_name: smartcrm-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    depends_on:
+      - backend
+    networks:
+      - smartcrm-net
+
+# ---------------------------------------------------------------
+# Volumes lưu trữ dữ liệu bền vững
+# ---------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+
+# ---------------------------------------------------------------
+# Mạng nội bộ kết nối các container
+# ---------------------------------------------------------------
+networks:
+  smartcrm-net:
+    driver: bridge
