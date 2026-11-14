@@ -12,7 +12,11 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest --forceExit",
-    "db:setup": "node scripts/db-setup.js"
+    "db:setup": "node scripts/db-setup.js",
+    "docker:up": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build"
   },
   "repository": {
     "type": "git",

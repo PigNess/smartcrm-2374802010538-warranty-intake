@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Frontend (có Dockerfile riêng)
+frontend/
+
+# Thư mục kiểm thử & tài liệu không cần thiết trên production container
+tests/
+thu-muc-test/
+docs/
+coverage/
+
+# Phiên bản & Môi trường bí mật
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# File tạm IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

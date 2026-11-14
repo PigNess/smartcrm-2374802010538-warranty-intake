@@ -1,146 +1,28 @@
-NHẬT KÝ THAY ĐỔI THIẾT KẾ & KHẮC PHỤC PHẢN HỒI BÀI TẬP 1 (BT1)
+Cập nhật thiết kế: đóng gói và triển khai bằng Docker (Buổi 3)
 
-Dự án: Smart CRM - L2: Tiếp nhận & Phân loại Bảo hành
+Ngày cập nhật: 14/11/2026
 
-Mã học phần: CHUYÊN ĐỀ TỐT NGHIỆP / THỰC HÀNH TRIỂN KHAI HỆ THỐNG
+Sau khi xử lý các thiếu sót kỹ thuật của Bài tập 2 (S3, S1, tài liệu AI, xác thực), hệ thống được bổ sung lớp đóng gói Docker để mọi máy đều dựng và chạy được cùng một môi trường. Các thay đổi dưới đây không làm đổi nghiệp vụ hay thiết kế cơ sở dữ liệu, chỉ bổ sung cách triển khai và tài liệu đi kèm.
 
-Ngày cập nhật: 19/10/2026
-
-I. TỔNG QUAN ĐÁNH GIÁ TỪ GIẢNG VIÊN (BT1)
-
-Điểm tổng kết BT1: 6.5 / 10
-
-Đầy đủ: 8.0 / 10
-
-Kỹ thuật: 5.0 / 10
-
-Nhất quán: 5.5 / 10
-
-Trình bày: 6.0 / 10
-
-Các điểm tốt đã ghi nhận:
-
-NFR01–NFR03 có ngưỡng đo lường rõ ràng (<1.5s với 100.000 bản ghi, 150 CCU, danh sách 20 dòng/trang <2s). Lập luận kiến trúc đúng khuôn mẫu và có phân tích đánh đổi (B-Tree index làm chậm ghi, JWT tăng băng thông).
-
-ERD thiết kế đủ 5 bảng có đầy đủ Khóa chính (PK), Khóa ngoại (FK); DDL PostgreSQL có tạo index idx_customer_phone đáp ứng NFR01; bảng ticket_status_log đáp ứng nghiệp vụ BR03.
-
-Đặc tả UC04 có luồng ngoại lệ 4a.1, 4a.2 đánh số rõ ràng cho trường hợp khuyết ngày mua.
-
-II. DANH SÁCH CHI TIẾT CÁC ĐIỂM CẦN KHẮC PHỤC (CHUẨN 4 DÒNG/MỤC)
-
-1. Bổ sung Danh sách User Story và Phân loại MoSCoW
-
-Phản hồi BT1: Bài không có danh sách User Story chi tiết, chỉ ghi mã US01–US06 trong ngoặc sau FR; thiếu nội dung dạng "Là... tôi muốn... để..." và mức ưu tiên MoSCoW cho từng story.
-
-Phân tích: Thiếu định dạng User Story chuẩn làm giảm góc nhìn người dùng cuối đối với yêu cầu phần mềm và làm đứt gãy tính truy vết (traceability) từ Yêu cầu chức năng (FR) sang User Story.
-
-Giải pháp xử lý: Đã bổ sung bảng chi tiết 6 User Stories (US01 đến US06) theo cấu trúc "Là [Actor], tôi muốn [Hành động] để [Mục tiêu]" kèm theo gán nhãn ưu tiên MoSCoW (Must, Should, Could, Won't) vào tài liệu docs/srs.md.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-2. Chuẩn hóa & Đồng bộ Mã Use Case (UC) giữa SRS, Bảng truy vết và Sơ đồ
-
-Phản hồi BT1: Mã UC lệch giữa Bảng truy vết và Sơ đồ: SRS ghi FR04->UC05, FR05->UC06 nhưng Sơ đồ thể hiện UC05 = Cập nhật trạng thái, UC06 = Phê duyệt phiếu ngoại lệ, UC08 = Cập nhật danh mục; bước 4a.2 đặc tả UC04 ghi chuyên sang UC05 thay vì UC06 cho QLTT.
-
-Phân tích: Việc lệch mã giữa các file thiết kế (srs.md, PDF và UseCaseDiagram.drawio) làm suy giảm trực tiếp điểm Nhất quán (5.5/10) và gây hiểu nhầm luồng xử lý hệ thống.
-
-Giải pháp xử lý: Đã rà soát lại toàn bộ Bảng truy vết, đồng bộ hóa mã UC trên sơ đồ và tài liệu SRS: Gán cố định UC05 = Cập nhật trạng thái phiếu, UC06 = Phê duyệt phiếu ngoại lệ, UC08 = Cập nhật danh mục nhóm sự cố; đồng thời sửa luồng 4a.2 trong UC04 chuyển chính xác sang UC06.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-3. Bổ sung Bảng Chú thích Ký hiệu (Legend) và Ánh xạ Wireframe
-
-Phản hồi BT1: ERD và sơ đồ kiến trúc chưa có bảng chú thích ký hiệu; sơ đồ kiến trúc chỉ có ghi trách nhiệm; wireframe chưa ghi rõ màn hình thuộc Use Case nào.
-
-Phân tích: Sơ đồ kỹ thuật thiếu Legend làm cho người đọc/đội ngũ phát triển khó nhận biết chính xác các ký hiệu quan hệ (PK, FK, 1-N) hoặc các tầng kiến trúc.
-
-Giải pháp xử lý: Đã bổ sung khối Chú thích ký hiệu (Legend) vào góc sơ đồ trong các file ERD.drawio và Archi.drawio; bổ sung tiêu đề ánh xạ Use Case tương ứng (ví dụ: [UC01] Màn hình tiếp nhận phiếu) lên trên từng khung Wireframe trong Wireframe1-3.drawio.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-4. Bổ sung Cột Mô tả lỗi (issue_description) vào Bảng tickets
-
-Phản hồi BT1: Wireframe thể hiện trường ghi nhận mô tả lỗi (như "Vỡ kính") nhưng trong ERD và bảng tickets của Cơ sở dữ liệu lại không có cột lưu trữ thông tin này.
-
-Phân tích: Sự bất bất đồng bộ giữa Giao diện người dùng (UI Wireframe) và Cơ sở dữ liệu (Database Schema) khiến dữ liệu mô tả sự cố của khách hàng không có nơi lưu trữ.
-
-Giải pháp xử lý: Đã cập nhật bảng tickets bổ sung cột issue_description TEXT đồng bộ trên ERD, file DDL schema.sql, lớp Repository/Service ở Backend Node.js và Form nhập liệu phía ReactJS Frontend.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-5. Bổ sung Tệp schema.sql và Chuẩn hóa Tệp Khai báo AI (ai-disclosure.md)
-
-Phản hồi BT1: Thiếu file schema.sql trong thư mục docs/ (mặc dù trong file PDF báo cáo có ghi); Phụ lục khai báo AI chỉ viết 1 dòng chung chung cho toàn bộ mục 1-5.
-
-Phân tích: Khai báo AI quá ngắn làm giảm tính minh bạch trong quá trình thực hiện đồ án; thiếu tệp DDL gốc làm người khác không thể khởi tạo lại CSDL đúng chuẩn.
-
-Giải pháp xử lý: Tạo tệp schema.sql lưu toàn bộ câu lệnh DDL PostgreSQL (gồm 5 bảng, PK/FK, Trigger, Index idx_customer_phone); tạo tệp docs/ai-disclosure.md trình bày chi tiết từng mục AI hỗ trợ (gợi ý kiến trúc, viết test, sinh code mẫu) và các phần sinh viên tự thực hiện/kiểm chứng.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-6. Khắc phục Quy trình Quản lý Git Repository & Merging
-
-Phản hồi BT1: Nhánh main chỉ có skeleton từ 25/09, toàn bộ nội dung nằm ở nhánh dev; lịch sử commit bị dồn (2 commit cuối 'Hoan thanh Bai Tap 1...' gộp toàn bộ nội dung).
-
-Phân tích: Không thực hiện Git flow chuẩn làm nhánh chính main bị lỗi thời, đồng thời commit message dồn đống vi phạm quy tắc Conventional Commits.
-
-Giải pháp xử lý: Đã chia nhỏ các thay đổi và commit theo chuẩn Conventional Commits (feat:, docs:, fix:); thực hiện thao tác git checkout main -> git merge dev -> git push origin main để đồng bộ toàn bộ mốc phát triển mới nhất lên nhánh main.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-7. Sửa lỗi Định dạng File Nộp bài và Màu nền Sơ đồ
-
-Phản hồi BT1: Nộp file .docx thay vì xuất PDF (bị trừ -1.5 điểm theo quy định TC1); sơ đồ chụp từ canvas nền đen gây khó đọc khi in ấn tài liệu.
-
-Phân tích: File .docx dễ vỡ khung và nhảy trang khi mở trên các thiết bị khác nhau; sơ đồ nền đen không phù hợp cho in ấn tài liệu kỹ thuật.
-
-Giải pháp xử lý: Đã chuyển toàn bộ background canvas trong Draw.io sang nền trắng/sáng; thiết lập quy trình xuất bản báo cáo ra file .pdf cho tất cả các đợt nộp bài tiếp theo.
-
-Trạng thái: Đã hoàn thành (Cập nhật trong Buổi 8).
-
-8. Bổ sung trường Liên hệ & Cập nhật Chuỗi ID
-
-- Phân tích: Thiết kế ban đầu thiếu thông tin liên lạc (SĐT, Email) của khách hàng để nhân viên phản hồi kết quả bảo hành. Quá trình test liên tục làm ID của phiếu nhảy số quá cao.
-- Giải pháp xử lý: Đã bổ sung cột `phone` và `email` vào bảng `tickets`. Xuyên suốt luồng từ CSDL -> Repo -> Service -> Router -> Frontend (Component `TicketManager.jsx`) đều đã được cập nhật đón nhận trường mới. Đã dùng lệnh `TRUNCATE tickets RESTART IDENTITY CASCADE` để reset toàn bộ bảng và đưa ID về lại 1.
-- Trạng thái: Đã hoàn thành (Bài tập 2).
-
-III. KẾ HOẠCH N HÀNH ĐỘNG CHO BÀI TẬP 2 (BT2)
-
-Dựa trên các gợi ý trực tiếp từ Giảng viên cho giai đoạn BT2:
-
-Quản lý Mã nguồn: Duy trì việc gộp mã nguồn từ dev về main sau mỗi buổi làm việc.
-
-Cơ sở dữ liệu & Tài liệu AI: Đảm bảo duy trì cập nhật tệp schema.sql và docs/ai-disclosure.md liên tục theo các tính năng mới.
-
-Kiểm thử Đơn vị (Unit Test): Viết unit test cho hàm tính toán thời hạn SLA bảo hành, trong đó bắt buộc có logic bỏ qua ngày Chủ nhật (đáp ứng Quy định nghiệp vụ BR02).
-
-## Cập nhật thiết kế và xử lý lỗi sau phản hồi Bài tập 2 (Buổi 14)
-
-Dựa trên nhận xét Bài tập 2 của giảng viên, hệ thống đã đạt được các điểm mạnh về luồng nghiệp vụ (chuẩn hóa SĐT, tính SLA, check hạn bảo hành...). Tuy nhiên, để khắc phục các điểm thiếu sót kỹ thuật, các quyết định thay đổi thiết kế và xử lý lỗi được ghi nhận và thực hiện chi tiết như sau:
-
-### 1. Khắc phục lỗi S3: Thiếu Database Migration và Seed Data
-- **Nhận xét của GV:** Repo không có migration dựng CSDL từ trống và tệp dữ liệu mẫu, khiến việc dựng hệ thống trên máy mới gặp khó khăn.
-- **Quyết định xử lý:** 
-  * Bổ sung thư mục `database/` chứa tệp cấu trúc `schema.sql` và dữ liệu mẫu `seed.sql`. 
-  * Viết script tự động hóa `scripts/db-setup.js` và tích hợp lệnh `"db:setup": "node scripts/db-setup.js"` vào `package.json`. Đảm bảo hệ thống có thể dựng lại hoàn chỉnh từ thư mục trống chỉ với lệnh thiết lập.
-- **Trạng thái:** Đã hoàn thành, kiểm chứng và ghi nhận vào Bug Log (BUG-01).
-
-### 2. Khắc phục lỗi S1: API chưa đủ CRUD cho 2 thực thể
-- **Nhận xét của GV:** Hệ thống mới chỉ tập trung vào thực thể Phiếu bảo hành (Tickets), chưa có đủ CRUD cho thực thể thứ hai.
-- **Quyết định xử lý:** 
-  * Bổ sung đầy đủ các thao tác RESTful API cho thực thể thứ hai (Khách hàng - `customers`).
-  * Xây dựng tầng Repository (`customer.repo.js`), Controller (`customer.controller.js`) và Routes (`customer.routes.js`) hỗ trợ đầy đủ 4 thao tác: Tạo mới (POST), Đọc danh sách (GET), Cập nhật (PUT) và Xóa (DELETE).
-- **Trạng thái:** Đã hoàn thành, tích hợp vào `index.js` và ghi nhận vào Bug Log (BUG-02).
-
-### 3. Bổ sung tài liệu minh bạch AI
-- **Nhận xét của GV:** Thiếu file `docs/ai-disclosure.md` trong repo.
-- **Quyết định xử lý:** Tạo và bổ sung file khai báo sử dụng công cụ AI (`docs/ai-disclosure.md`) trong thư mục tài liệu, nêu rõ phạm vi hỗ trợ của công cụ và cam kết trách nhiệm cá nhân đối với logic cốt lõi.
-- **Trạng thái:** Đã hoàn thành và đẩy lên nhánh `main`.
-
-### 4. Bổ sung cơ chế Xác thực (Authentication) và Phân quyền che dữ liệu
-- **Nhận xét của GV:** Chưa có đăng nhập dù có quy tắc che SĐT theo vai trò.
-- **Quyết định xử lý:**
-  * Bổ sung API Đăng nhập (`/api/auth/login`) phân biệt hai vai trò: `RECEPTIONIST` (Lễ tân) và `MANAGER` (Quản lý), sử dụng JSON Web Token (JWT).
-  * Xây dựng Middleware xác thực (`auth.middleware.js`) để bảo vệ các tuyến đường API nhạy cảm.
-  * Cập nhật tầng xử lý dữ liệu danh sách phiếu bảo hành: Nếu người dùng đăng nhập mang vai trò `RECEPTIONIST`, hệ thống tự động áp dụng thuật toán che 4 số giữa của Số điện thoại (Masking); nếu là `MANAGER`, hiển thị đầy đủ.
-- **Trạng thái:** Đã hoàn thành và ghi nhận vào Bug Log (BUG-03 - Critical/Major).
+1. Đóng gói hệ thống bằng Docker
+Lý do thay đổi: Chạy Localhost buộc người dùng tự cài Node.js, PostgreSQL, tạo database smartcrm và cấu hình .env, dễ phát sinh sai khác giữa các máy.
+Quyết định xử lý:
+Thêm Dockerfile để build image cho ứng dụng và .dockerignore để loại các tệp không cần thiết khỏi image.
+Thêm docker-compose.yml chạy trọn gói PostgreSQL, Backend API và Frontend React bằng một lệnh: docker compose --env-file .env.docker up --build -d.
+Thêm docker-compose.dev.yml cho môi trường phát triển.
+Viết DOCKER.md hướng dẫn chi tiết cách chạy, dừng và xử lý sự cố.
+Đánh đổi: Môi trường nhất quán và dựng nhanh trên máy mới, nhưng cần cài Docker Desktop, lần build đầu tiên lâu hơn và có thêm các tệp cấu hình phải bảo trì.
+Trạng thái: Đã hoàn thành các tệp cấu hình. Kết quả chạy thực tế: <điền kết quả chạy lệnh docker compose>.
+2. Tách cấu hình môi trường cho Docker
+Lý do thay đổi: Cấu hình chạy Localhost và chạy trong container khác nhau (ví dụ địa chỉ máy chủ cơ sở dữ liệu), đồng thời mật khẩu không được đưa lên Git.
+Quyết định xử lý:
+Dùng .env.docker (sao chép từ .env.docker.example) cho Docker; giữ .env và .env.example cho chế độ Localhost.
+Chỉ commit các tệp .example; .env và .env.docker được loại trừ khỏi Git qua .gitignore.
+Trạng thái: Đã hoàn thành. Đã kiểm tra .gitignore loại trừ đúng hai tệp trên: <Có>.
+3. Đồng bộ tài liệu sau thay đổi
+Lý do thay đổi: Bài tập 1 bị nhận xét về tính Nhất quán giữa các tài liệu, nên mọi thay đổi triển khai phải được phản ánh đồng thời vào các tệp liên quan.
+Quyết định xử lý:
+Cập nhật README.md: Mục 2 (hai cách chạy Docker và Localhost), Mục 5 (công nghệ), Mục 6 (cây thư mục), Mục 7 đến 9 (trạng thái, tiêu chí tự kiểm, khai báo AI).
+Bổ sung test-report.md ghi kết quả kiểm thử và cập nhật ai-disclosure.md.
+Ghi nhận các thay đổi này vào nhật ký thiết kế.
+Trạng thái: Đã hoàn thành.

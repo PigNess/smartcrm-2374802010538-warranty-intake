@@ -1,0 +1,32 @@
+# =============================================================
+# Docker Compose Môi trường Phát triển (Development with Hot-Reload)
+# Chạy bằng lệnh: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+# =============================================================
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npx", "nodemon", "index.js"]
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./database:/app/database
+      - ./app.js:/app/app.js
+      - ./index.js:/app/index.js
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - /app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
